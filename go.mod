@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/dgraph-io/dgo/v200 v200.0.0-20210401091508-95bfd74de60e
+	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/cors v1.2.1
 	google.golang.org/grpc v1.47.0
 )
 

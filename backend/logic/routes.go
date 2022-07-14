@@ -41,13 +41,16 @@ func Route() *chi.Mux {
 	)
 
 	// Definición de rutas "End Points" urls sobre las que se hace la petición desde el frontend
-	mux.Get("/getPrograms", getPrograms)
+	mux.Get("/listPrograms", listPrograms)
 	mux.Post("/saveProgram", saveProgram)
 
 	return mux
 }
 
-func getPrograms(w http.ResponseWriter, r *http.Request) {
+/*
+	Genera un JSON con todos los programas almacenados en la BD para poderlos listar en el frontend
+*/
+func listPrograms(w http.ResponseWriter, r *http.Request) {
 
 	// Genera el encabezadod de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -60,7 +63,7 @@ func getPrograms(w http.ResponseWriter, r *http.Request) {
 	// Estructura de la Query
 	q := `
 	{
-		program(func: has(name))
+		programs(func: has(name))
 		{
 			name
 			content
@@ -68,7 +71,7 @@ func getPrograms(w http.ResponseWriter, r *http.Request) {
 	}`
 
 	// Envia la Query a la BD
-	resp, err := txn.QueryWithVars(context.Background(), q, map[string]string{"func": "has(name)"})
+	resp, err := txn.Query(context.Background(), q)
 
 	// Si no existe error envia la respuesta
 	if err != nil {
@@ -79,6 +82,10 @@ func getPrograms(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp.Json)
 }
 
+/*
+	
+*/
+
 func saveProgram(w http.ResponseWriter, r *http.Request) {
 
 	// Genera el encabezadod de la respuesta
@@ -88,11 +95,28 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 	client := database.NewClient()
 	txn := client.NewTxn()
 
+	// Se recupera la data del form enviado por el frontend por el request
+	r.ParseForm()
+
+	name := r.FormValue("name")
+	content := r.FormValue("content")
+
 	// Almacena en P los datos a almacenar en formato preestablecido por el modelo
 	p := models.Program{
-		Name: "Programa_1",
-		Content:  "print(hola mundo)",
+		Name: name,
+		Content:  content,
 	}
+	
+	// Pruebas Borrar ...........
+	fmt.Println("")
+	fmt.Println("Se guardo el programa ....")
+
+	// Lee la clave-valor desde el form-encoded request body de postman !!!!
+	r.ParseForm()
+	fmt.Println("name : ", name)
+	fmt.Println("content :", content)
+	fmt.Println("Info....")
+	// Pruebas Borrar ...........
 
 	// Genera el JSON
 	pb, err := json.Marshal(p)

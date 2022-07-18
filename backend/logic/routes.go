@@ -40,8 +40,12 @@ func Route() *chi.Mux {
 		cors.Handler,
 	)
 
+	// Modifica el esquema para permitir las consultas con filtros
+	alterSchema()
+
 	// Definición de rutas "End Points" urls sobre las que se hace la petición desde el frontend
 	mux.Get("/listPrograms", listPrograms)
+	mux.Get("/getProgram", getProgram)
 	mux.Post("/saveProgram", saveProgram)
 
 	return mux
@@ -52,13 +56,12 @@ func Route() *chi.Mux {
 */
 func listPrograms(w http.ResponseWriter, r *http.Request) {
 
-	// Genera el encabezadod de la respuesta
+	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
 
 	// Establece un cliente dGraph
 	client := database.NewClient()
 	txn := client.NewTxn()
-
 
 	// Estructura de la Query
 	q := `
@@ -83,8 +86,53 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-	
+	Genera un JSON con el contenido del programa indicado
 */
+func getProgram(w http.ResponseWriter, r *http.Request) {
+
+	// Genera el encabezado de la respuesta
+	w.Header().Set("Content-Type", "application/json")
+
+	// Establece un cliente dGraph
+	client := database.NewClient()
+	txn := client.NewTxn()
+
+	// Se obtiene el nombre del programa a buscar
+	// Se recupera la data del form enviado por el frontend por el request
+	//r.ParseForm()
+	//name := r.FormValue("name")
+	name := "programa_2"
+
+	// Pruebas borrar ......
+	fmt.Println("")
+	fmt.Println("Buscando: ",name)
+	// Pruebas borrar
+
+	// Estructura de la Query
+	q := `
+	query getProgram($name: string)
+	{
+		code(func: eq(name, $name)) 
+		{
+			content
+		}
+	}`
+
+	// Envia la Query a la BD con un mapa que contiene la variable
+	resp, err := txn.QueryWithVars(context.Background(), q, map[string]string{"$name": name})
+
+	// Si no existe error envia la respuesta
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("")
+	w.Write(resp.Json)
+}
+
+/*
+	Almacena la información de un programa en la BD
+ */
 
 func saveProgram(w http.ResponseWriter, r *http.Request) {
 
@@ -103,19 +151,19 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 
 	// Almacena en P los datos a almacenar en formato preestablecido por el modelo
 	p := models.Program{
-		Name: name,
-		Content:  content,
+		Name:    name,
+		Content: content,
 	}
-	
+
 	// Pruebas Borrar ...........
 	fmt.Println("")
-	fmt.Println("Se guardo el programa ....")
+	fmt.Println("Se guardó el programa ....")
 
 	// Lee la clave-valor desde el form-encoded request body de postman !!!!
 	r.ParseForm()
 	fmt.Println("name : ", name)
 	fmt.Println("content :", content)
-	fmt.Println("Info....")
+	fmt.Println("...")
 	// Pruebas Borrar ...........
 
 	// Genera el JSON
@@ -144,4 +192,28 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("")
 	w.Write(resp.Json)
+}
+
+/*
+	Modifica el esquema y agrega indice en el predicado "name" para permitir las consultas filtradas
+*/
+func alterSchema() {
+
+	// Define el esquema
+	op := &api.Operation{}
+	op.Schema = `
+	name: string @index(exact) .
+	content: string .
+	`
+	// Establece un cliente dGraph
+	client := database.NewClient()
+
+	// Modifica el esquema
+	err := client.Alter(context.Background(), op)
+
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Println("Schema Updated")
+	}
 }

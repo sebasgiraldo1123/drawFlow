@@ -89,7 +89,7 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 /*
 	Genera un JSON con el contenido del programa indicado
 */
-func getProgram(w http.ResponseWriter, r *http.Request) {
+ func getProgram(w http.ResponseWriter, r *http.Request) {
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -210,12 +210,11 @@ func runProgram(w http.ResponseWriter, r *http.Request) {
 	txn := client.NewTxn()
 
 	// Se encuentra el nombre del programa en la solicitud
-	name := "programa_3"
+	name := "programa_5"
 
 	// Pruebas borrar ......
 	fmt.Println("")
-	fmt.Println(".... Buscando: ", name)
-	// Pruebas borrar
+	fmt.Println(".... Buscando : ", name)
 
 	// Estructura de la Query
 	q := `
@@ -235,7 +234,7 @@ func runProgram(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// Decodifica el JSON de resp para encontrar el codigo del programa solicitado
+	// Decodifica el JSON de la resp para encontrar el codigo del programa solicitado
 	var codeMap models.Programs
 
 	err = json.Unmarshal([]byte(resp.Json), &codeMap)
@@ -247,12 +246,29 @@ func runProgram(w http.ResponseWriter, r *http.Request) {
 	// Obtiene el código del programa
 	code := codeMap.Programs[0].Content
 
-	// Envia el codigo al compilador para su ejecución
-	fmt.Println(RunPython(code))
+	// Carga el codigo en script.py
+	LoadScript(code)
 
-	fmt.Println("")
+	// Ejecuta el código y obtiene el buffer de respuesta "out" y errores "err" 
+	out, errores := RunScript()
 
-	w.Write(resp.Json)
+	// Pruebas borrar ......
+	fmt.Println(out, errores)
+
+	// Se estructuran la salida y los errores
+	p := models.RespCompiler{
+		Out: out,
+		Err: errores,
+	}
+
+	// Se genera un json y se envia como respuesta
+	pb, err := json.Marshal(p)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.Write(pb)
 }
 
 /*

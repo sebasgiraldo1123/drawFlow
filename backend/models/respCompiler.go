@@ -3,6 +3,7 @@ package models
 /*
 	Estructura básica de la respuesta del compilador
 */
-type respCompiler struct{
-	Console string `json:"console"`
+type RespCompiler struct{
+	Out string `json:"out"`
+	Err string `json:"err"`
 }

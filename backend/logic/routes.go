@@ -47,6 +47,7 @@ func Route() *chi.Mux {
 	mux.Get("/listPrograms", listPrograms)
 	mux.Get("/getProgram", getProgram)
 	mux.Post("/saveProgram", saveProgram)
+	mux.Get("/runProgram", runProgram)
 
 	return mux
 }
@@ -105,15 +106,16 @@ func getProgram(w http.ResponseWriter, r *http.Request) {
 
 	// Pruebas borrar ......
 	fmt.Println("")
-	fmt.Println("Buscando: ",name)
+	fmt.Println("Buscando: ", name)
 	// Pruebas borrar
 
 	// Estructura de la Query
 	q := `
 	query getProgram($name: string)
 	{
-		code(func: eq(name, $name)) 
+		program(func: eq(name, $name)) 
 		{
+			name
 			content
 		}
 	}`
@@ -132,7 +134,7 @@ func getProgram(w http.ResponseWriter, r *http.Request) {
 
 /*
 	Almacena la información de un programa en la BD
- */
+*/
 
 func saveProgram(w http.ResponseWriter, r *http.Request) {
 
@@ -191,6 +193,65 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("")
+	w.Write(resp.Json)
+}
+
+/*
+	Busca el programa dentro de la BD
+	lo ejecuta y devuelve el resultado como un JSON
+*/
+func runProgram(w http.ResponseWriter, r *http.Request) {
+
+	// Genera el encabezado de la respuesta
+	w.Header().Set("Content-Type", "application/json")
+
+	// Establece un cliente dGraph
+	client := database.NewClient()
+	txn := client.NewTxn()
+
+	// Se encuentra el nombre del programa en la solicitud
+	name := "programa_3"
+
+	// Pruebas borrar ......
+	fmt.Println("")
+	fmt.Println(".... Buscando: ", name)
+	// Pruebas borrar
+
+	// Estructura de la Query
+	q := `
+	query getProgram($name: string)
+	{
+		program(func: eq(name, $name)) 
+		{
+			name
+			content
+		}
+	}`
+
+	// Envia la Query a la BD con un mapa que contiene la variable
+	resp, err := txn.QueryWithVars(context.Background(), q, map[string]string{"$name": name})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Decodifica el JSON de resp para encontrar el codigo del programa solicitado
+	var codeMap models.Programs
+
+	err = json.Unmarshal([]byte(resp.Json), &codeMap)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Obtiene el código del programa
+	code := codeMap.Programs[0].Content
+
+	// Envia el codigo al compilador para su ejecución
+	fmt.Println(RunPython(code))
+
+	fmt.Println("")
+
 	w.Write(resp.Json)
 }
 

@@ -210,7 +210,7 @@ func runProgram(w http.ResponseWriter, r *http.Request) {
 	txn := client.NewTxn()
 
 	// Se encuentra el nombre del programa en la solicitud
-	name := "programa_4"
+	name := "programa_2"
 
 	// Pruebas borrar ......
 	fmt.Println("")

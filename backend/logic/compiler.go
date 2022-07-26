@@ -35,7 +35,7 @@ func LoadScript(code string) {
 		ctx = append(ctx, []byte("\n")...)
 	}
 
-	// Se reescribe el archivo que contiene el script
+	// Se reescribe el archivo que contiene el script, si no existe lo crea
 	err := ioutil.WriteFile("scripts/script.py", ctx, 0644)
 	if err != nil {
 		log.Fatal(err)

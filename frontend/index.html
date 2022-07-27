@@ -38,17 +38,22 @@
         <h6>Get Program</h6>
 
         <div class="dropdown">
-            <button v-on:click="getProgram" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                {{program}}
+            <button class="btn btn-secondary dropdown-toggle" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <label id="editorName"></label>
             </button>
             <ul class="dropdown-menu dropdown-menu-dark">
-                <li v-for="(item, index) in programs">
-                    <a class="dropdown-item" href="#">
-                        {{ item.name }}
-                    </a>
+                <li v-for="(program, index) in programs">
+                    <button v-on:click="getProgram(program.name)" class="dropdown-item">
+                        {{ program.name }}
+                    </button>
                 </li>
             </ul>
         </div>
+        <div class="mb-3">
+            <textarea class="form-control" id="editorContent" rows="10"></textarea>
+        </div>
+
         <br>
 
         <h6>{{info}}</h6>

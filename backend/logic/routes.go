@@ -26,7 +26,7 @@ func Route() *chi.Mux {
 	// Inicialización de parámetros
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
@@ -89,7 +89,7 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 /*
 	Genera un JSON con el contenido del programa indicado
 */
- func getProgram(w http.ResponseWriter, r *http.Request) {
+func getProgram(w http.ResponseWriter, r *http.Request) {
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -100,14 +100,12 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 
 	// Se obtiene el nombre del programa a buscar
 	// Se recupera la data del form enviado por el frontend por el request
-	//r.ParseForm()
-	//name := r.FormValue("name")
-	name := "programa_2"
+	r.ParseForm()
+	name := r.FormValue("name")
 
 	// Pruebas borrar ......
 	fmt.Println("")
 	fmt.Println("Buscando: ", name)
-	// Pruebas borrar
 
 	// Estructura de la Query
 	q := `
@@ -249,7 +247,7 @@ func runProgram(w http.ResponseWriter, r *http.Request) {
 	// Carga el codigo en script.py
 	LoadScript(code)
 
-	// Ejecuta el código y obtiene el buffer de respuesta "out" y errores "err" 
+	// Ejecuta el código y obtiene el buffer de respuesta "out" y errores "err"
 	out, errores := RunScript()
 
 	// Pruebas borrar ......

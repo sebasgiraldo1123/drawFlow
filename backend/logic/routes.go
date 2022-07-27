@@ -99,7 +99,6 @@ func getProgram(w http.ResponseWriter, r *http.Request) {
 	txn := client.NewTxn()
 
 	// Se obtiene el nombre del programa a buscar
-	// Se recupera la data del form enviado por el frontend por el request
 	r.ParseForm()
 	name := r.FormValue("name")
 
@@ -145,7 +144,6 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 
 	// Se recupera la data del form enviado por el frontend por el request
 	r.ParseForm()
-
 	name := r.FormValue("name")
 	content := r.FormValue("content")
 
@@ -160,7 +158,6 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Se guardó el programa ....")
 
 	// Lee la clave-valor desde el form-encoded request body de postman !!!!
-	r.ParseForm()
 	fmt.Println("name : ", name)
 	fmt.Println("content :", content)
 	fmt.Println("...")
@@ -207,8 +204,9 @@ func runProgram(w http.ResponseWriter, r *http.Request) {
 	client := database.NewClient()
 	txn := client.NewTxn()
 
-	// Se encuentra el nombre del programa en la solicitud
-	name := "programa_2"
+	// Se obtiene el nombre del programa a ejecutar
+	r.ParseForm()
+	name := r.FormValue("name")
 
 	// Pruebas borrar ......
 	fmt.Println("")

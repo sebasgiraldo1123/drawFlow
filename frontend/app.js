@@ -39,6 +39,31 @@ const app = new Vue({
             this.writeEditor(this.program[0])
         },
 
+        /**
+         * Guarda un programa válido en la base de datos
+         */
+        async saveProgram() {
+
+            // Falta el nombre repetido y hay un problema con el +
+            let name = document.getElementById("saveProgramName").value
+            let content = document.getElementById("saveProgramContent").value
+
+            let response = await axios.post('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content)
+        },
+
+        /**
+         * Corre el programa cargado en el editor y escribe el resultado en el terminal
+         */
+
+        async runProgram() {
+
+            let name = document.getElementById("editorName").innerText
+            let response = await axios.get('http://localhost:9000/runProgram' + '?name=' + name)
+
+            console.log(response.data)
+            document.getElementById("editorTerminal").value = response.data.out + response.data.err
+        },
+
         // -------------------------------- Métodos de Apoyo ---------------------------------------------
 
         /**

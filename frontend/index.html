@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -24,7 +24,8 @@
 </head>
 
 <body>
-    <div class="container mt-5" id="app">
+
+    <div id="text_editor" class="container-fluid">
 
         <h6>List Programs</h6>
 
@@ -33,61 +34,55 @@
                 {{ index }} - {{ program.name }} - {{ program.content }}
             </li>
         </div>
+
         <br>
 
-        <h6>Get Program</h6>
-
-        <div class="dropdown">
-            <button v-on:click="listPrograms" class="btn btn-secondary dropdown-toggle" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                <label id="editorName"></label>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-dark">
-                <li v-for="(program, index) in programs">
-                    <button v-on:click="getProgram(program.name)" class="dropdown-item">
-                        {{ program.name }}
+        <div id="actions" class="row">
+            <div id="dropdown" class="col mb-2">
+                <div class="dropdown">
+                    <button v-on:click="listPrograms" class="btn btn-secondary dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <label id="program_label"></label>
                     </button>
-                </li>
-            </ul>
-        </div>
-        <div class="mb-3">
-            <textarea class="form-control" id="editorContent" rows="5"></textarea>
-        </div>
-
-        <br>
-
-        <h6>Run Program</h6>
-
-        <div class="mb-3">
-            <textarea class="form-control" id="editorTerminal" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-            <button v-on:click="runProgram" type="button" class="btn btn-secondary">Run</button>
-        </div>
-
-
-        <br>
-
-        <h6>Save Program</h6>
-
-        <div class="mb-3">
-            <label for="saveProgramName" class="form-label">Name</label>
-            <input type="email" class="form-control" id="saveProgramName">
-        </div>
-        <div class="mb-3">
-            <label for="saveProgramContent" class="form-label">Content</label>
-            <textarea class="form-control" id="saveProgramContent" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-            <button v-on:click="saveProgram" type="button" class="btn btn-primary">Save</button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li>
+                            <div class="row">
+                                <div class="col">
+                                    <input id="newProgram_input" type="text" placeholder="New Program">
+                                </div>
+                                <div class="col">
+                                    <button v-on:click="newProgram" type="button" class="btn btn-primary">+</button>
+                                </div>
+                            </div>
+                        </li>
+                        <li v-for="(program, index) in programs">
+                            <button v-on:click="getProgram(program.name)" class="dropdown-item">
+                                {{ program.name }}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="save_button" class="col mb-2">
+                <button v-on:click="saveProgram" type="button" class="btn btn-primary">Save</button>
+            </div>
+            <div id="run_button" class="col mb-2">
+                <button v-on:click="runProgram" type="button" class="btn btn-success">Run</button>
+            </div>
         </div>
 
-        <h6>{{info}}</h6>
-
-
+        <div id="terminal" class="row">
+            <div class="col">
+                <textarea class="form-control" id="content_text" rows="10"></textarea>
+            </div>
+            <div class="col">
+                <textarea class="form-control" id="terminal_text" rows="10"></textarea>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.4/dist/vue.js"></script>
-    <script src="app.js"></script>
+    <script src="text_editor.js"></script>
+
 </body>
 
 </html>

@@ -46,8 +46,9 @@ func Route() *chi.Mux {
 	// Definición de rutas "End Points" urls sobre las que se hace la petición desde el frontend
 	mux.Get("/listPrograms", listPrograms)
 	mux.Get("/getProgram", getProgram)
-	mux.Post("/saveProgram", saveProgram)
+	mux.Get("/saveProgram", saveProgram)
 	mux.Get("/runProgram", runProgram)
+	mux.Get("/updateProgram", updateProgram)
 
 	return mux
 }
@@ -57,7 +58,7 @@ func Route() *chi.Mux {
 */
 func listPrograms(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("\n","----> listProgram")
+	fmt.Println("\n", "----> listProgram")
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -93,7 +94,7 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 */
 func getProgram(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("\n","----> getProgram")
+	fmt.Println("\n", "----> getProgram")
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -139,7 +140,7 @@ func getProgram(w http.ResponseWriter, r *http.Request) {
 
 func saveProgram(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("\n","----> saveProgram")
+	fmt.Println("\n", "----> saveProgram")
 
 	// Genera el encabezadod de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -198,12 +199,82 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+	Actualiza un programa dado su nombre
+*/
+
+func updateProgram(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("\n", "----> updateProgram")
+
+	// Genera el encabezado de la respuesta
+	w.Header().Set("Content-Type", "application/json")
+
+	// Establece un cliente dGraph
+	client := database.NewClient()
+	txn := client.NewTxn()
+
+	// Se recupera la data del form enviado por el frontend por el request
+	r.ParseForm()
+	name := r.FormValue("name")
+	content := r.FormValue("content")
+
+	// Pruebas borrar ......
+	fmt.Println("")
+	fmt.Println(".... Update : ", name)
+
+	// Estructura de la Query
+	q := `
+	query updateProgram($name: string) 
+	{
+		updateProgram(func: eq(name, $name)) 
+		{
+			id as uid
+			name
+			content
+		}
+	}`
+
+	// Se genera la mutación que modifica el content
+	var set = []byte{}
+	set = append(set, []byte(`uid(id) <content> "`)...)
+	set = append(set, []byte(content)...)
+	set = append(set, []byte(`" .`)...)
+
+	// Genera una mutación con la actualización para Dgraph
+	mu := &api.Mutation{
+		SetNquads: set,
+	}
+
+	// Envia la solicitud de mutación a la BD
+	req := &api.Request{
+		Query:     q,
+		Vars:      map[string]string{"$name": name},
+		CommitNow: true,
+		Mutations: []*api.Mutation{mu},
+	}
+
+	respUpdate, err := txn.Do(context.Background(), req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Si no existe error envia la respuesta
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("")
+	w.Write(respUpdate.Json)
+
+}
+
+/*
 	Busca el programa dentro de la BD
 	lo ejecuta y devuelve el resultado como un JSON
 */
 func runProgram(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("\n","----> runProgram")
+	fmt.Println("\n", "----> runProgram")
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")

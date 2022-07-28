@@ -58,7 +58,7 @@ const app = new Vue({
                 let name = document.getElementById("saveProgramName").value
                 let content = this.formatContent(document.getElementById("saveProgramContent").value)
 
-                let response = await axios.post('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content)
+                let response = await axios.get('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content)
             }
             catch (error) {
                 console.log(error.message)

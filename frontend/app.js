@@ -23,20 +23,29 @@ const app = new Vue({
          * Almacena en un vector todos los programas disponibles en Dgraph
          */
         async listPrograms() {
-            let response = await axios.get('http://localhost:9000/listPrograms')
-            this.programs = response.data.programs
+            try {
+                let response = await axios.get('http://localhost:9000/listPrograms')
+                this.programs = response.data.programs
+            }
+            catch (error) {
+                console.log(error.message)
+            }
         },
 
         /**
          * Encuentra un programa dado su nombre
          */
         async getProgram(programName) {
+            try {
+                let response = await axios.get('http://localhost:9000/getProgram' + '?name=' + programName)
+                this.program = response.data.program
 
-            let response = await axios.get('http://localhost:9000/getProgram' + '?name=' + programName)
-            this.program = response.data.program
-
-            // Se escriben los datos del programa en el editor
-            this.writeEditor(this.program[0])
+                // Se escriben los datos del programa en el editor
+                this.writeEditor(this.program[0])
+            }
+            catch (error) {
+                console.log(error.message)
+            }
         },
 
         /**
@@ -44,11 +53,16 @@ const app = new Vue({
          */
         async saveProgram() {
 
-            // Falta el nombre repetido y hay un problema con el +
-            let name = document.getElementById("saveProgramName").value
-            let content = document.getElementById("saveProgramContent").value
+            try {
+                // ---------- Falta el nombre repetido ---------------
+                let name = document.getElementById("saveProgramName").value
+                let content = this.formatContent(document.getElementById("saveProgramContent").value)
 
-            let response = await axios.post('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content)
+                let response = await axios.post('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content)
+            }
+            catch (error) {
+                console.log(error.message)
+            }
         },
 
         /**
@@ -57,11 +71,15 @@ const app = new Vue({
 
         async runProgram() {
 
-            let name = document.getElementById("editorName").innerText
-            let response = await axios.get('http://localhost:9000/runProgram' + '?name=' + name)
+            try {
+                let name = document.getElementById("editorName").innerText
+                let response = await axios.get('http://localhost:9000/runProgram' + '?name=' + name)
 
-            console.log(response.data)
-            document.getElementById("editorTerminal").value = response.data.out + response.data.err
+                document.getElementById("editorTerminal").value = response.data.out + response.data.err
+            }
+            catch (error) {
+                console.log(error.message)
+            }
         },
 
         // -------------------------------- Métodos de Apoyo ---------------------------------------------
@@ -82,6 +100,19 @@ const app = new Vue({
             program.content.split("|").forEach(line => {
                 editorContent.value += line + "\n"
             });
+        },
+
+        /**
+         * Formatea el contenido del programa agregando "|" en cada Salto de linea
+         */
+        formatContent(content){
+
+            let formated = ""
+            let lines = content.split('\n')
+            lines.forEach(line => {
+                formated += line + "|"
+            });
+            return formated
         }
     },
 

@@ -57,6 +57,8 @@ func Route() *chi.Mux {
 */
 func listPrograms(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("\n","----> listProgram")
+
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
 
@@ -90,6 +92,8 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 	Genera un JSON con el contenido del programa indicado
 */
 func getProgram(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("\n","----> getProgram")
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -134,6 +138,8 @@ func getProgram(w http.ResponseWriter, r *http.Request) {
 */
 
 func saveProgram(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("\n","----> saveProgram")
 
 	// Genera el encabezadod de la respuesta
 	w.Header().Set("Content-Type", "application/json")
@@ -196,6 +202,8 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 	lo ejecuta y devuelve el resultado como un JSON
 */
 func runProgram(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("\n","----> runProgram")
 
 	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")

@@ -26,6 +26,9 @@ func LoadScript(code string) {
 	fmt.Println(".... Cargando")
 	fmt.Println(code)
 
+	// Se limpia el código antes de enviarlo al script
+	code = strings.ReplaceAll(code, "@", "+")
+
 	// Se separa el código en lineas usando el separador y sea agregan a un []byte
 	lines := strings.Split(code, "|")
 	var ctx = []byte{}

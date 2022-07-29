@@ -55,6 +55,11 @@ const text_editor = new Vue({
                 let name = document.getElementById("program_label").innerHTML
                 let content = this.formatContent(document.getElementById("content_text").value)
 
+                // Se formatea el contenido para evitar problemas con las comillas dobles y el + que se toma como 
+                //concatenación dentro del código del servidor
+                content = content.replaceAll(/["]+/g, "'")
+                content = content.replaceAll("+","@")
+
                 if (name != "" && content != "") {
                     if (this.existProgram(name)) {
                         await axios.get('http://localhost:9000/updateProgram' + '?name=' + name + '&content=' + content)
@@ -108,6 +113,9 @@ const text_editor = new Vue({
             let content_text = document.getElementById("content_text")
             content_text.value = ""
 
+            // Se formatea lo que se trae del servidor
+            program.content = program.content.replaceAll("@","+")
+
             // Se escribe linea por linea
             program.content.split("|").forEach(line => {
                 content_text.value += line + "\n"
@@ -157,7 +165,7 @@ const text_editor = new Vue({
 
             let exist = false
             this.programs.forEach(program => {
-                if (program.name === name) {
+                if (program.name == name) {
                     exist = true
                 }
             });

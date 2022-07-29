@@ -23,60 +23,66 @@
     <title>DrawFlow</title>
 </head>
 
-<body>
+<body class="row row-cols-2 font-monospace" style="background-color:rgb(42, 79, 83)">
 
-    <div id="text_editor" class="container-fluid">
+    <div id="nope_editor" class="col-7 container-fluid">
 
-        <h6>List Programs</h6>
+    </div>
+    <div id="text_editor" class="col-5 container-fluid">
 
-        <div class="container-fluid">
-            <li v-for="(program, index) in programs">
-                {{ index }} - {{ program.name }} - {{ program.content }}
-            </li>
-        </div>
-
-        <br>
-
-        <div id="actions" class="row">
-            <div id="dropdown" class="col mb-2">
-                <div class="dropdown">
-                    <button v-on:click="listPrograms" class="btn btn-secondary dropdown-toggle" type="button"
+        <div id="info" class="row row-cols-1 mt-1">
+            <div id="dropdown" class="col">
+                <div class="btn-group dropend">
+                    <button v-on:click="listPrograms" class="btn btn-primary dropdown-toggle" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <label id="program_label"></label>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li>
-                            <div class="row">
-                                <div class="col">
-                                    <input id="newProgram_input" type="text" placeholder="New Program">
-                                </div>
-                                <div class="col">
-                                    <button v-on:click="newProgram" type="button" class="btn btn-primary">+</button>
-                                </div>
-                            </div>
-                        </li>
                         <li v-for="(program, index) in programs">
                             <button v-on:click="getProgram(program.name)" class="dropdown-item">
                                 {{ program.name }}
                             </button>
                         </li>
+                        <li>
+                            <hr class="dropdown-divider bg-light">
+                        </li>
+                        <li class="row">
+                            <div class="col">
+                                <input id="newProgram_input" class="bg-transparent text-white" type="text" placeholder="New Program">
+                            </div>
+                            <div class="col">
+                                <button v-on:click="newProgram" type="button" class="btn btn-success btn-sm">
+                                    +
+                                </button>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div id="save_button" class="col mb-2">
-                <button v-on:click="saveProgram" type="button" class="btn btn-primary">Save</button>
+        </div>
+        <div id="content" class="row mt-1">
+            <div class="col-1" style="padding-right: 0px">
+                <textarea class="form-control bg-transparent text-white" id="content_number" rows="10"></textarea>
             </div>
-            <div id="run_button" class="col mb-2">
-                <button v-on:click="runProgram" type="button" class="btn btn-success">Run</button>
+            <div class="col-11" style="padding-left: 0px">
+                <textarea class="form-control bg-transparent text-white" id="content_text" rows="10"></textarea>
             </div>
         </div>
-
-        <div id="terminal" class="row">
-            <div class="col">
-                <textarea class="form-control" id="content_text" rows="10"></textarea>
+        <div id="terminal" class="row row-cols-2 mt-1">
+            <div id="actions" class="col-1">
+                <div id="save_button" class="mt-1">
+                    <button v-on:click="saveProgram" type="button" class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+                <div id="run_button" class="mt-1">
+                    <button v-on:click="runProgram" type="button" class="btn btn-success">
+                        Run 
+                    </button>
+                </div>
             </div>
-            <div class="col">
-                <textarea class="form-control" id="terminal_text" rows="10"></textarea>
+            <div class="col-11" style="padding-left: 0px">
+                <textarea class="form-control bg-transparent text-white" id="terminal_text" rows="5"></textarea>
             </div>
         </div>
     </div>

@@ -258,11 +258,6 @@ func updateProgram(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// Si no existe error envia la respuesta
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	fmt.Println("")
 	w.Write(respUpdate.Json)
 

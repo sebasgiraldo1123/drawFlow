@@ -23,6 +23,7 @@ const text_editor = new Vue({
             try {
                 let response = await axios.get('http://localhost:9000/listPrograms')
                 this.programs = response.data.programs
+                console.log(response.data.programs)
             }
             catch (error) {
                 console.log(error.message)

@@ -50,7 +50,7 @@ editor.on('connectionRemoved', function (connection) {
  * Cuando el mouse se mueve dentro del editor de nodos se formatean y se escribe dentro del content_text
  */
 editor.on('mouseMove', function (position) {
-    console.log('Position mouse x:' + position.x + ' y:' + position.y);
+    //console.log('Position mouse x:' + position.x + ' y:' + position.y);
 
     /***/
     formatNodes();
@@ -65,7 +65,7 @@ editor.on('zoom', function (zoom) {
 })
 
 editor.on('translate', function (position) {
-    console.log('Translate x:' + position.x + ' y:' + position.y);
+    //console.log('Translate x:' + position.x + ' y:' + position.y);
 })
 
 editor.on('addReroute', function (id) {
@@ -137,7 +137,7 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
         case 'variable':
             var variableTemplate = `
                 <div>
-                  <div class="title-box"><i class="fas fa-code"></i>Variable</div>
+                  <div class="title-box"><i class="fas fa-code"></i> Variable</div>
                   <div class="box">
                     <p>Enter name</p>
                     <input type="text" df-name>
@@ -147,7 +147,7 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
                     <select df-type>
                         <option value="number">number</option>
                         <option value="string">string</option>
-                        <option value="other">other</option>
+                        <option value="assign">other</option>
                     </select>
                   </div>
                 </div>
@@ -158,10 +158,28 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
         case 'print':
             var printTemplate = `
             <div>
-              <div class="title-box"><i class="fas fa-code"></i>print Message</div>
+              <div class="title-box"><i class="fas fa-code"></i> Print Message</div>
             </div>
             `;
             editor.addNode('print', 1, 0, pos_x, pos_y, 'print', {}, printTemplate);
+            break;
+
+        case 'math':
+            var mathTemplate = `
+                    <div>
+                      <div class="title-box"><i class="fas fa-code"></i> Math</div>
+                      <div class="box">
+                        <p>select operation</p>
+                        <select df-operation>
+                            <option value="+">addition</option>
+                            <option value="-">substraction</option>
+                            <option value="*">multiplication</option>
+                            <option value="/">division</option>
+                        </select>
+                      </div>
+                    </div>
+                    `;
+            editor.addNode('math', 2, 1, pos_x, pos_y, 'math', { "operation": '+' }, mathTemplate);
             break;
 
         default:
@@ -173,25 +191,71 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
  * Escribe el código linea por linea dentro del Content-text 
  */
 function formatNodes(json) {
+    console.log(JSON.stringify(editor.export(), null, 4));
 
     // Se borra el contenido
     content_text.value = "";
 
-    // ----------------- Variables -----------------------
+    // Recorre los nodos con su id
+    for (let id_node = 1; id_node <= Object.keys(editor.export().drawflow.Home.data).length; id_node++) {
 
-    let variables = editor.getNodesFromName("variable");
-    variables.forEach(id_variable => {
+        let node = editor.getNodeFromId(id_node);
 
-        let data = editor.getNodeFromId(id_variable).data;
-        if (data.name != "" && data.value != "") {
-            if(data.type == "string"){
-                content_text.value += data.name + "='" + data.value +"'"+ "\n";
-            }
-            else{
-                content_text.value += data.name + "=" + data.value + "\n";
-            }     
+        switch (node.name) {
+
+            case 'variable':
+                if (node.data.name != "" && node.data.value != "") {
+                    if (node.data.type == "string") {
+                        content_text.value += node.data.name + "='" + node.data.value + "'" + "\n";
+                    }
+                    else {
+                        content_text.value += node.data.name + "=" + node.data.value + "\n";
+                    }
+                }
+                break;
+
+            case 'print':
+                let inputs_p = node.inputs.input_1.connections;
+                if (inputs_p.length != 0) {
+
+                    let print = "print(";
+
+                    inputs_p.forEach(connection => {
+                        let connectedNode = editor.getNodeFromId(connection.node);
+
+                        // Imprime variables
+                        if (connectedNode.name == "variable") {
+                            print += connectedNode.data.name + ",";
+                        }
+
+                        // Imprime una operación matemática
+                        if (connectedNode.name == "math") {
+                            let inputs_1 = connectedNode.inputs.input_1.connections;
+                            let inputs_2 = connectedNode.inputs.input_2.connections;
+                            if (inputs_1.length != 0 && inputs_2.length != 0) {
+
+                                let op_1 = editor.getNodeFromId(inputs_1[0].node).data.name;
+                                let op_2 = editor.getNodeFromId(inputs_2[0].node).data.name;
+
+                                print += op_1 + connectedNode.data.operation + op_2 + ",";
+                            }
+                        }
+                    });
+
+                    print = print.slice(0, print.length - 1); // Elimino la última coma "," que no es necesario
+                    print += ")" + "\n";
+                    content_text.value += print;
+                }
+                break;
+            default:
         }
-    });
+    }
+
+    let objeto = editor.export();
+    //console.log(objeto.drawflow.Home.data)
+    //console.log(Object.keys(objeto.drawflow.Home.data).length)
+
+    //console.log(JSON.stringify(editor.export(), null, 4));
 
     //content_text.value = editor.getNodeFromId('1').data.name
     //content_text.value = editor.getNodesFromName("variable");

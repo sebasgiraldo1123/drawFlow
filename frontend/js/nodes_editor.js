@@ -37,13 +37,13 @@ editor.on('moduleChanged', function (name) {
 })
 
 editor.on('connectionCreated', function (connection) {
-    console.log('Connection created');
-    console.log(connection);
+    //console.log('Connection created');
+    //console.log(connection);
 })
 
 editor.on('connectionRemoved', function (connection) {
-    console.log('Connection removed');
-    console.log(connection);
+    //console.log('Connection removed');
+    //console.log(connection);
 })
 
 /**
@@ -57,11 +57,11 @@ editor.on('mouseMove', function (position) {
 })
 
 editor.on('nodeMoved', function (id) {
-    console.log("Node moved " + id);
+    //console.log("Node moved " + id);
 })
 
 editor.on('zoom', function (zoom) {
-    console.log('Zoom level ' + zoom);
+    //console.log('Zoom level ' + zoom);
 })
 
 editor.on('translate', function (position) {
@@ -69,11 +69,11 @@ editor.on('translate', function (position) {
 })
 
 editor.on('addReroute', function (id) {
-    console.log("Reroute added " + id);
+    //console.log("Reroute added " + id);
 })
 
 editor.on('removeReroute', function (id) {
-    console.log("Reroute removed " + id);
+    //console.log("Reroute removed " + id);
 })
 
 // ----------------------- Acciones del mouse --------------------------
@@ -159,9 +159,20 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
             var printTemplate = `
             <div>
               <div class="title-box"><i class="fas fa-code"></i> Print Message</div>
+              <div class="box">
+                <div class="row">
+                    <div class="col-2">
+                        <p>print</p>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" df-argument style="width: 112px;">
+                    </div>
+                </div>
+              </div>
             </div>
+            
             `;
-            editor.addNode('print', 1, 0, pos_x, pos_y, 'print', {}, printTemplate);
+            editor.addNode('print', 1, 1, pos_x, pos_y, 'print', { "argument": '' }, printTemplate);
             break;
 
         case 'math':
@@ -182,85 +193,232 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
             editor.addNode('math', 2, 1, pos_x, pos_y, 'math', { "operation": '+' }, mathTemplate);
             break;
 
+        case 'conditional':
+            var conditionalTemplate = `
+                    <div>
+                      <div class="title-box"><i class="fas fa-code"></i> Conditional</div>
+                      <div class="box">
+                        <div class="row">
+                            <div class="col-1">
+                                <p>if</p>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" df-condition style="width: 112px;">
+                            </div>
+                            <div class="col-1">
+                                <p>:</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <p>else:</p>
+                            </div>
+                        </div>
+                      </div>
+                      </div>
+                    </div>
+                    `;
+            editor.addNode('conditional', 2, 0, pos_x, pos_y, 'conditional', { "condition": '' }, conditionalTemplate);
+            break;
+
+        case 'loop':
+            var loopTemplate = `
+                    <div>
+                      <div class="title-box"><i class="fas fa-code"></i> Loop</div>
+                      <div class="box">
+                        <div class="row">
+                            <div class="col-4">
+                                <select df-operation style="width: 64px;">
+                                    <option value="for">for</option>
+                                    <option value="while">while</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <input type="text" df-condition style="width: 83px;">
+                            </div>
+                            <div class="col-1">
+                                <p>:</p>
+                            </div>
+                        </div>
+                      </div>
+                      </div>
+                    </div>
+                    `;
+            editor.addNode('loop', 1, 0, pos_x, pos_y, 'loop', { "condition": '', "operation": 'for' }, loopTemplate);
+            break;
+
         default:
     }
 }
 
 /**
- * Formatea el JSON que entrega el DrawFlow para convertirlo en código entendible por el interprete de Python
+ * Formatea el JSON que entrega el DrawFlow
  * Escribe el código linea por linea dentro del Content-text 
  */
-function formatNodes(json) {
-    console.log(JSON.stringify(editor.export(), null, 4));
+function formatNodes() {
 
     // Se borra el contenido
     content_text.value = "";
 
-    // Recorre los nodos con su id
-    for (let id_node = 1; id_node <= Object.keys(editor.export().drawflow.Home.data).length; id_node++) {
+    // Almacena los nodos que son excluidos por escribirse dentro de un condicional o bucle
+    let excludedNodes = [];
+    Object.values(editor.export().drawflow.Home.data).forEach(node => {
 
-        let node = editor.getNodeFromId(id_node);
+        if (node.name == "conditional") {
+            let inputs_e1 = node.inputs.input_1.connections;
+            let inputs_e2 = node.inputs.input_2.connections;
 
-        switch (node.name) {
+            // Excluyendo nodos del if
+            if (inputs_e1.length != 0) {
+                inputs_e1.forEach(connection => {
+                    excludedNodes.push(connection.node);
+                });
+            }
 
-            case 'variable':
-                if (node.data.name != "" && node.data.value != "") {
-                    if (node.data.type == "string") {
-                        content_text.value += node.data.name + "='" + node.data.value + "'" + "\n";
-                    }
-                    else {
-                        content_text.value += node.data.name + "=" + node.data.value + "\n";
-                    }
-                }
-                break;
-
-            case 'print':
-                let inputs_p = node.inputs.input_1.connections;
-                if (inputs_p.length != 0) {
-
-                    let print = "print(";
-
-                    inputs_p.forEach(connection => {
-                        let connectedNode = editor.getNodeFromId(connection.node);
-
-                        // Imprime variables
-                        if (connectedNode.name == "variable") {
-                            print += connectedNode.data.name + ",";
-                        }
-
-                        // Imprime una operación matemática
-                        if (connectedNode.name == "math") {
-                            let inputs_1 = connectedNode.inputs.input_1.connections;
-                            let inputs_2 = connectedNode.inputs.input_2.connections;
-                            if (inputs_1.length != 0 && inputs_2.length != 0) {
-
-                                let op_1 = editor.getNodeFromId(inputs_1[0].node).data.name;
-                                let op_2 = editor.getNodeFromId(inputs_2[0].node).data.name;
-
-                                print += op_1 + connectedNode.data.operation + op_2 + ",";
-                            }
-                        }
-                    });
-
-                    print = print.slice(0, print.length - 1); // Elimino la última coma "," que no es necesario
-                    print += ")" + "\n";
-                    content_text.value += print;
-                }
-                break;
-            default:
+            // Excluyendo nodos del else
+            if (inputs_e2.length != 0) {
+                inputs_e2.forEach(connection => {
+                    excludedNodes.push(connection.node);
+                });
+            }
         }
-    }
 
-    let objeto = editor.export();
-    //console.log(objeto.drawflow.Home.data)
-    //console.log(Object.keys(objeto.drawflow.Home.data).length)
+        if (node.name == "loop") {
+            let inputs_e3 = node.inputs.input_1.connections;
 
-    //console.log(JSON.stringify(editor.export(), null, 4));
+            // Excluyendo nodos del bucle
+            if (inputs_e3.length != 0) {
+                inputs_e3.forEach(connection => {
+                    excludedNodes.push(connection.node);
+                });
+            }
+        }
+    });
 
-    //content_text.value = editor.getNodeFromId('1').data.name
-    //content_text.value = editor.getNodesFromName("variable");
-    //formatNodes(JSON.stringify(editor.export(), null, 4));
+    // Recorre primero las variables que no se encuentran dentro de un condicional o un bucle
+    Object.values(editor.export().drawflow.Home.data).forEach(node => {
+        if (!excludedNodes.includes(node.id.toString()) && node.name == "variable") {
+            formatNode(node);
+        }
+    });
+
+    // Recorre los nodos existentes excluyendo los que se encuentran dentro de un condicional o un loop y las variables
+    Object.values(editor.export().drawflow.Home.data).forEach(node => {
+        if (!excludedNodes.includes(node.id.toString()) && node.name != "variable") {
+            formatNode(node);
+        }
+    });
 }
+
+
+/**
+ * Convierte el nodo en texto entendible por el interprete de Python
+ * @param {*} node objeto que contiene toda la información de un nodo en particular
+ */
+function formatNode(node) {
+
+    switch (node.name) {
+        case 'variable':
+            if (node.data.name != "" && node.data.value != "") {
+                if (node.data.type == "string") {
+                    content_text.value += node.data.name + "='" + node.data.value + "'" + "\n";
+                }
+                else {
+                    content_text.value += node.data.name + "=" + node.data.value + "\n";
+                }
+            }
+            break;
+
+        case 'print':
+            let inputs_p = node.inputs.input_1.connections;
+            if (inputs_p.length != 0) {
+
+                let print = "print(";
+
+                inputs_p.forEach(connection => {
+                    let connectedNode = editor.getNodeFromId(connection.node);
+
+                    // Imprime variables
+                    if (connectedNode.name == "variable") {
+                        print += connectedNode.data.name + ",";
+                    }
+
+                    // Imprime una operación matemática
+                    if (connectedNode.name == "math") {
+                        let inputs_m1 = connectedNode.inputs.input_1.connections;
+                        let inputs_m2 = connectedNode.inputs.input_2.connections;
+                        if (inputs_m1.length != 0 && inputs_m2.length != 0) {
+
+                            let op_1 = editor.getNodeFromId(inputs_m1[0].node).data.name;
+                            let op_2 = editor.getNodeFromId(inputs_m2[0].node).data.name;
+
+                            print += op_1 + connectedNode.data.operation + op_2 + ",";
+                        }
+                    }
+                });
+
+                print = print.slice(0, print.length - 1); // Elimino la última coma "," que no es necesario
+                print += ")" + "\n";
+                content_text.value += print;
+            }
+            else {
+                content_text.value += "print(" + node.data.argument + ")" + "\n";
+            }
+            break;
+
+        case 'conditional':
+            let inputs_c1 = node.inputs.input_1.connections;
+            let inputs_c2 = node.inputs.input_2.connections;
+
+            if (inputs_c1.length != 0) {
+                content_text.value += "if " + node.data.condition + ":" + "\n";
+
+                inputs_c1.forEach(connection => {
+                    let if_Node = editor.getNodeFromId(connection.node);
+                    content_text.value += "   ";
+                    formatNode(if_Node);
+                });
+
+                if (inputs_c2.length != 0) {
+                    content_text.value += "else:" + "\n";
+
+                    inputs_c2.forEach(connection => {
+                        let else_Node = editor.getNodeFromId(connection.node);
+                        content_text.value += "   ";
+                        formatNode(else_Node);
+                    });
+                }
+            }
+            break;
+
+        case 'loop':
+            let inputs_l = node.inputs.input_1.connections;
+
+            if (inputs_l.length != 0) {
+                content_text.value += node.data.operation + " " + node.data.condition + ":" + "\n";
+
+                inputs_l.forEach(connection => {
+                    let loop_Node = editor.getNodeFromId(connection.node);
+                    content_text.value += "   ";
+                    formatNode(loop_Node);
+                });
+            }
+            break;
+
+        default:
+    }
+}
+
+//let objeto = editor.export();
+//console.log(objeto.drawflow.Home.data)
+//console.log(Object.keys(objeto.drawflow.Home.data).length)
+
+//console.log(JSON.stringify(editor.export(), null, 4));
+
+//content_text.value = editor.getNodeFromId('1').data.name
+//content_text.value = editor.getNodesFromName("variable");
+//formatNodes(JSON.stringify(editor.export(), null, 4));
+
 
 
 var transform = '';

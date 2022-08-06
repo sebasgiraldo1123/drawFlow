@@ -1,6 +1,6 @@
-const text_editor = new Vue({
+const drawFlowEditor = new Vue({
 
-    el: '#text_editor',
+    el: '#editor',
 
     data: {
         info: null,
@@ -59,7 +59,7 @@ const text_editor = new Vue({
                 // Se formatea el contenido para evitar problemas con las comillas dobles y el + que se toma como 
                 //concatenación dentro del código del servidor
                 content = content.replaceAll(/["]+/g, "'")
-                content = content.replaceAll("+","@")
+                content = content.replaceAll("+", "@")
 
                 if (name != "" && content != "") {
                     if (this.existProgram(name)) {
@@ -110,16 +110,23 @@ const text_editor = new Vue({
             // Asigna el nombre del programa
             document.getElementById("program_label").innerText = program.name
 
-            // Se borra el content_text
+            // Se borra el content_text y el content_number
             let content_text = document.getElementById("content_text")
             content_text.value = ""
 
+            let content_number = document.getElementById("content_number")
+            content_number.value = ""
+
+            let number_line = 1
+
             // Se formatea lo que se trae del servidor
-            program.content = program.content.replaceAll("@","+")
+            program.content = program.content.replaceAll("@", "+")
 
             // Se escribe linea por linea
             program.content.split("|").forEach(line => {
                 content_text.value += line + "\n"
+                content_number.value += ">>" + number_line + "\n"
+                number_line += 1
             });
         },
 
@@ -147,7 +154,7 @@ const text_editor = new Vue({
             if (newName != "") {
                 if (!this.existProgram(newName)) {
                     document.getElementById("program_label").innerText = newName
-                    document.getElementById("content_text").value = "print(5)"
+                    document.getElementById("content_text").value = "print('Welcome to drawflow by sebasgiraldo1123')"
                 }
                 else {
                     window.alert(newName + " exist !!");
@@ -172,7 +179,6 @@ const text_editor = new Vue({
             });
             return exist
         }
-
     },
 
     // Se ejecuta al cargar la página
@@ -180,3 +186,19 @@ const text_editor = new Vue({
         this.listPrograms()
     }
 })
+
+/**
+* Detecta los cambios del código y numera las lineas escritas
+*/
+function content_number() {
+    let content = document.getElementById("content_text");
+    let content_number = document.getElementById("content_number");
+    content_number.value = ""
+
+    let number_line = 1
+
+    content.value.split("\n").forEach(line => {
+        content_number.value += ">>" + number_line + "\n"
+        number_line += 1
+    });
+}

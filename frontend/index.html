@@ -35,118 +35,104 @@
         integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 
 
-    <title>DrawFlow</title>
+    <title>
+        DrawFlow
+    </title>
 
 </head>
 
-<body style="background-color:rgb(59, 75, 83)">
+<body>
 
     <header>
         <h2>Drawflow</h2>
     </header>
 
-    <div id="editor" class="row">
-
-        <div id="text_editor" class="col-5">
-            <div id="info" class="row row-cols-1 mt-1">
-                <div id="dropdown" class="col">
-                    <div class="btn-group dropend">
-                        <button v-on:click="listPrograms" class="btn btn-primary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <label id="program_label"></label>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li v-for="(program, index) in programs">
-                                <button v-on:click="getProgram(program.name)" class="dropdown-item">
-                                    {{ program.name }}
+    <div id="editor">
+        <div id="menu" class="row">
+            <div id="run_button" class="col-1">
+                <button v-on:click="runProgram" type="button" class="btn btn-success" style="width: 120px">
+                    Run
+                </button>
+            </div>
+            <div id="save_button" class="col-1">
+                <button v-on:click="saveProgram" type="button" class="btn btn-primary" style="width: 120px">
+                    Save
+                </button>
+            </div>
+            <div id="dropdown" class="col-1">
+                <div class="btn-group dropend">
+                    <button v-on:click="listPrograms" class="btn btn-primary dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <label id="program_label"></label>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu" style="width: 300px">
+                        <li class="row" style="align-content: center">
+                            <div class="col-9">
+                                <input id="newProgram_input" type="text" placeholder="New Program"
+                                    style="width: 214px; padding-left: 10px; margin-left: 15px">
+                            </div>
+                            <div class="col-1">
+                                <button v-on:click="newProgram" type="button" class="btn btn-success">
+                                    +
                                 </button>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider bg-light">
-                            </li>
-                            <li class="row">
-                                <div class="col">
-                                    <input id="newProgram_input" class="bg-transparent text-white" type="text"
-                                        placeholder="New Program">
-                                </div>
-                                <div class="col">
-                                    <button v-on:click="newProgram" type="button" class="btn btn-success btn-sm">
-                                        +
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div id="content" class="row mt-1">
-                <div class="col-1" style="padding-right: 0px">
-                    <textarea class="form-control bg-transparent text-white" id="content_number" rows="10"></textarea>
-                </div>
-                <div class="col-11" style="padding-left: 0px">
-                    <textarea class="form-control bg-transparent text-white" id="content_text" rows="10"></textarea>
-                </div>
-            </div>
-            <div id="terminal" class="row row-cols-2 mt-1">
-                <div id="actions" class="col-1">
-                    <div id="save_button" class="mt-1">
-                        <button v-on:click="saveProgram" type="button" class="btn btn-primary">
-                            Save
-                        </button>
-                    </div>
-                    <div id="run_button" class="mt-1">
-                        <button v-on:click="runProgram" type="button" class="btn btn-success">
-                            Run
-                        </button>
-                    </div>
-                </div>
-                <div class="col-11" style="padding-left: 0px">
-                    <textarea class="form-control bg-transparent text-white" id="terminal_text" rows="5"></textarea>
+                            </div>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider bg-light">
+                        </li>
+                        <li v-for="(program, index) in programs">
+                            <button v-on:click="getProgram(program.name)" class="dropdown-item">
+                                {{ program.name }}
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-        <script src="js/text_editor.js"></script>
-
-        <div id="nodes_editor" class="col-7">
-            <div class="wrapper">
-                <div>
-                    <div class="menu align-content-start">
-                        <ul>
-                            <li>
-                                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)"
-                                    data-node="variable">
-                                    <i class="fas fa-code"></i><span> Variable</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="print">
-                                    <i class="fas fa-code"></i><span> Print</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="math">
-                                    <i class="fas fa-code"></i><span> Math</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="conditional">
-                                    <i class="fas fa-code"></i><span> Conditional</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="loop">
-                                    <i class="fas fa-code"></i><span> Loop</span>
-                                </div>
-                            </li>
-                        </ul>
+        <div id="workplace" class="row">
+            <div id="nodes_editor" class="col">
+                <div class="wrapper">
+                    <div class="col-2">
+                        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="variable">
+                            <i class="fas fa-code"></i><span> Variable</span>
+                        </div>
+                        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="print">
+                            <i class="fas fa-code"></i><span> Print</span>
+                        </div>
+                        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="math">
+                            <i class="fas fa-code"></i><span> Math</span>
+                        </div>
+                        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="conditional">
+                            <i class="fas fa-code"></i><span> Conditional</span>
+                        </div>
+                        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="loop">
+                            <i class="fas fa-code"></i><span> Loop</span>
+                        </div>
                     </div>
-                    <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    <div class="col-10" id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    </div>
+                </div>
+            </div>
+            <div id="text_editor" class="col-3">
+                <div id="content" class="row">
+                    <div class="col-2" style="padding: 0px">
+                        <textarea class="form-control" id="content_number" rows="27" readonly></textarea>
+                    </div>
+                    <div class="col-10" style="padding-left: 0px">
+                        <textarea class="form-control" id="content_text" oninput="content_number()"
+                            rows="27"></textarea>
+                    </div>
+                </div>
+                <div id="terminal" class="row">
+                    <div class="col-12" style="padding-left: 0px">
+                        <textarea class="form-control" id="terminal_text" rows="10" readonly></textarea>
                     </div>
                 </div>
             </div>
         </div>
-        <script src="js/nodes_editor.js"></script>
     </div>
+    <script src="js/text_editor.js"></script>
+    <script src="js/nodes_editor.js"></script>
 
 </body>
 

@@ -18,42 +18,57 @@ editor.start();
 
 editor.on('nodeCreated', function (id) {
     console.log("Node created " + id);
+
+    /***/
+    formatNodes();
 })
 
 editor.on('nodeRemoved', function (id) {
     console.log("Node removed " + id);
+
+    /***/
+    formatNodes();
 })
 
 editor.on('nodeSelected', function (id) {
     console.log("Node selected " + id);
+
+    /***/
+    formatNodes();
 })
 
 editor.on('moduleCreated', function (name) {
     console.log("Module Created " + name);
+
+    /***/
+    formatNodes();
 })
 
 editor.on('moduleChanged', function (name) {
     console.log("Module Changed " + name);
+
+    /***/
+    formatNodes();
 })
 
 editor.on('connectionCreated', function (connection) {
     //console.log('Connection created');
     //console.log(connection);
+
+    /***/
+    formatNodes();
 })
 
 editor.on('connectionRemoved', function (connection) {
     //console.log('Connection removed');
     //console.log(connection);
-})
-
-/**
- * Cuando el mouse se mueve dentro del editor de nodos se formatean y se escribe dentro del content_text
- */
-editor.on('mouseMove', function (position) {
-    //console.log('Position mouse x:' + position.x + ' y:' + position.y);
 
     /***/
     formatNodes();
+})
+
+editor.on('mouseMove', function (position) {
+    //console.log('Position mouse x:' + position.x + ' y:' + position.y);
 })
 
 editor.on('nodeMoved', function (id) {
@@ -139,9 +154,9 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
                 <div>
                   <div class="title-box"><i class="fas fa-code"></i> Variable</div>
                   <div class="box">
-                    <p>Enter name</p>
+                    <p>enter name</p>
                     <input type="text" df-name>
-                    <p>Enter value</p>
+                    <p>enter value</p>
                     <input type="text" df-value>
                     <p>select type</p>
                     <select df-type>
@@ -161,7 +176,7 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
               <div class="title-box"><i class="fas fa-code"></i> Print Message</div>
               <div class="box">
                 <div class="row">
-                    <div class="col-2">
+                    <div class="col-3">
                         <p>print</p>
                     </div>
                     <div class="col-8">
@@ -308,6 +323,8 @@ function formatNodes() {
             formatNode(node);
         }
     });
+
+    content_number();
 }
 
 

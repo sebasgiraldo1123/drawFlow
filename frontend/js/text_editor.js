@@ -23,7 +23,6 @@ const drawFlowEditor = new Vue({
             try {
                 let response = await axios.get('http://localhost:9000/listPrograms')
                 this.programs = response.data.programs
-                console.log(response.data.programs)
             }
             catch (error) {
                 console.log(error.message)
@@ -55,18 +54,23 @@ const drawFlowEditor = new Vue({
                 // Obtiene los datos del programa
                 let name = document.getElementById("program_label").innerHTML
                 let content = this.formatContent(document.getElementById("content_text").value)
+                let nodes = editor.export()
 
                 // Se formatea el contenido para evitar problemas con las comillas dobles y el + que se toma como 
                 //concatenación dentro del código del servidor
                 content = content.replaceAll(/["]+/g, "'")
                 content = content.replaceAll("+", "@")
 
+                let stringConvert = JSON.stringify(nodes)
+                nodes = window.btoa(window.encodeURIComponent(stringConvert))
+
+
                 if (name != "" && content != "") {
                     if (this.existProgram(name)) {
-                        await axios.get('http://localhost:9000/updateProgram' + '?name=' + name + '&content=' + content)
+                        await axios.get('http://localhost:9000/updateProgram' + '?name=' + name + '&content=' + content + '&nodes=' + nodes)
                     }
                     else {
-                        await axios.get('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content)
+                        await axios.get('http://localhost:9000/saveProgram' + '?name=' + name + '&content=' + content + '&nodes=' + nodes)
                     }
                 }
             }
@@ -106,6 +110,11 @@ const drawFlowEditor = new Vue({
          * Escribe el nombre y el contenido de un programa en el editor
          */
         writeEditor(program) {
+
+            // Importo la información de los nodos en el editor
+            let decode = window.decodeURIComponent(window.atob(program.nodes))
+
+            editor.import(JSON.parse(decode))
 
             // Asigna el nombre del programa
             document.getElementById("program_label").innerText = program.name
@@ -154,7 +163,9 @@ const drawFlowEditor = new Vue({
             if (newName != "") {
                 if (!this.existProgram(newName)) {
                     document.getElementById("program_label").innerText = newName
-                    document.getElementById("content_text").value = "print('Welcome to drawflow by sebasgiraldo1123')"
+                    document.getElementById("content_text").value = ""
+                    document.getElementById("terminal_text").value = "Welcome to Drawflow by sebasgiraldo1123"
+                    editor.clear()
                 }
                 else {
                     window.alert(newName + " exist !!");

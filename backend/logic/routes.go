@@ -74,6 +74,7 @@ func listPrograms(w http.ResponseWriter, r *http.Request) {
 		{
 			name
 			content
+			nodes
 		}
 	}`
 
@@ -119,6 +120,7 @@ func getProgram(w http.ResponseWriter, r *http.Request) {
 		{
 			name
 			content
+			nodes
 		}
 	}`
 
@@ -142,7 +144,7 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("\n", "----> saveProgram")
 
-	// Genera el encabezadod de la respuesta
+	// Genera el encabezado de la respuesta
 	w.Header().Set("Content-Type", "application/json")
 
 	// Establece un cliente dGraph
@@ -153,11 +155,13 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	name := r.FormValue("name")
 	content := r.FormValue("content")
+	nodes := r.FormValue("nodes")
 
 	// Almacena en P los datos a almacenar en formato preestablecido por el modelo
 	p := models.Program{
 		Name:    name,
 		Content: content,
+		Nodes:   nodes,
 	}
 
 	// Pruebas Borrar ...........
@@ -167,6 +171,7 @@ func saveProgram(w http.ResponseWriter, r *http.Request) {
 	// Lee la clave-valor desde el form-encoded request body de postman !!!!
 	fmt.Println("name : ", name)
 	fmt.Println("content :", content)
+	fmt.Println("nodes :", nodes)
 	fmt.Println("...")
 	// Pruebas Borrar ...........
 
@@ -217,6 +222,7 @@ func updateProgram(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	name := r.FormValue("name")
 	content := r.FormValue("content")
+	nodes := r.FormValue("nodes")
 
 	// Pruebas borrar ......
 	fmt.Println("")
@@ -231,18 +237,28 @@ func updateProgram(w http.ResponseWriter, r *http.Request) {
 			id as uid
 			name
 			content
+			nodes
 		}
 	}`
 
-	// Se genera la mutación que modifica el content
-	var set = []byte{}
-	set = append(set, []byte(`uid(id) <content> "`)...)
-	set = append(set, []byte(content)...)
-	set = append(set, []byte(`" .`)...)
+	// Se genera la mutación 'uid(v) <name> "new name" .' que modifica el content y nodes
+	var set_content = []byte{}
+	set_content = append(set_content, []byte(`uid(id) <content> "`)...)
+	set_content = append(set_content, []byte(content)...)
+	set_content = append(set_content, []byte(`" .`)...)
+
+	var set_nodes = []byte{}
+	set_nodes = append(set_nodes, []byte(`uid(id) <nodes> "`)...)
+	set_nodes = append(set_nodes, []byte(nodes)...)
+	set_nodes = append(set_nodes, []byte(`" .`)...)
 
 	// Genera una mutación con la actualización para Dgraph
-	mu := &api.Mutation{
-		SetNquads: set,
+	mu_content := &api.Mutation{
+		SetNquads: set_content,
+	}
+
+	mu_nodes := &api.Mutation{
+		SetNquads: set_nodes,
 	}
 
 	// Envia la solicitud de mutación a la BD
@@ -250,7 +266,7 @@ func updateProgram(w http.ResponseWriter, r *http.Request) {
 		Query:     q,
 		Vars:      map[string]string{"$name": name},
 		CommitNow: true,
-		Mutations: []*api.Mutation{mu},
+		Mutations: []*api.Mutation{mu_content, mu_nodes},
 	}
 
 	respUpdate, err := txn.Do(context.Background(), req)
@@ -351,6 +367,7 @@ func alterSchema() {
 	op.Schema = `
 	name: string @index(exact) .
 	content: string .
+	nodes: string .
 	`
 	// Establece un cliente dGraph
 	client := database.NewClient()

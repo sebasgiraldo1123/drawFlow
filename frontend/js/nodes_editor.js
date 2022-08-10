@@ -18,57 +18,39 @@ editor.start();
 
 editor.on('nodeCreated', function (id) {
     console.log("Node created " + id);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('nodeRemoved', function (id) {
     console.log("Node removed " + id);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('nodeSelected', function (id) {
     console.log("Node selected " + id);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('moduleCreated', function (name) {
     console.log("Module Created " + name);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('moduleChanged', function (name) {
     console.log("Module Changed " + name);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('connectionCreated', function (connection) {
     //console.log('Connection created');
     //console.log(connection);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('connectionRemoved', function (connection) {
     //console.log('Connection removed');
     //console.log(connection);
-
-    /***/
-    formatNodes();
 })
 
 editor.on('mouseMove', function (position) {
     //console.log('Position mouse x:' + position.x + ' y:' + position.y);
+    
+    /***/
+    formatNodes();
 })
 
 editor.on('nodeMoved', function (id) {
@@ -180,7 +162,7 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
                         <p>print</p>
                     </div>
                     <div class="col-8">
-                        <input type="text" df-argument style="width: 112px;">
+                        <input type="text" df-argument style="width: 112px">
                     </div>
                 </div>
               </div>
@@ -218,7 +200,7 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
                                 <p>if</p>
                             </div>
                             <div class="col-8">
-                                <input type="text" df-condition style="width: 112px;">
+                                <input type="text" df-condition style="width: 112px">
                             </div>
                             <div class="col-1">
                                 <p>:</p>
@@ -249,7 +231,7 @@ function addNodeToDrawFlow(name, pos_x, pos_y) {
                                 </select>
                             </div>
                             <div class="col-6">
-                                <input type="text" df-condition style="width: 83px;">
+                                <input type="text" df-condition style="width: 83px">
                             </div>
                             <div class="col-1">
                                 <p>:</p>
@@ -425,17 +407,6 @@ function formatNode(node) {
         default:
     }
 }
-
-//let objeto = editor.export();
-//console.log(objeto.drawflow.Home.data)
-//console.log(Object.keys(objeto.drawflow.Home.data).length)
-
-//console.log(JSON.stringify(editor.export(), null, 4));
-
-//content_text.value = editor.getNodeFromId('1').data.name
-//content_text.value = editor.getNodesFromName("variable");
-//formatNodes(JSON.stringify(editor.export(), null, 4));
-
 
 
 var transform = '';

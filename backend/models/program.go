@@ -6,6 +6,7 @@ package models
 type Program struct{
 	Name string `json:"name"`
 	Content string `json:"content"`
+  Nodes string `json:"nodes"`
 }
 
 /*
